@@ -30,10 +30,21 @@ void draw_board() {
     }
     cout << "\n";
     for (int i = 1; i < y; i++) {
-        for (int j = 0; j < x; j++) {
-            cout << board[i][j] << " ";
+        if(x > 9) {
+            for (int j = 0; j < 9; j++) {
+                cout << board[i][j] << " ";
+            }
+            for (int j = 9; j < x; j++) {
+                cout << board[i][j] << "  ";
+            }
+            cout << endl;
         }
-        cout << endl;
+        else {
+            for (int j = 0; j < x; j++) {
+                cout << board[i][j] << " ";
+            }
+            cout << endl;
+        }
     }
 }
 
