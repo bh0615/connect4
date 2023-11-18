@@ -86,6 +86,38 @@ void place_move(int selection, int user) {
     }
 }
 
+bool check(int turn, int row, int col) {
+    // Check right
+    if(col + 3 < x) {
+        if(board[row][col+1] == turn && board[row][col+2] == turn && board[row][col+3] == turn) {
+            return 1;
+        }
+        if(row - 3 >= 0 && board[row-1][col+1] == turn && board[row-2][col+2] == turn && board[row-3][col+3] == turn) {
+            return 1;
+        }
+        if(row + 3 <= y-1 && board[row+1][col+1] == turn && board[row+2][col+2] == turn && board[row+3][col+3] == turn) {
+            return 1;
+        }
+    }
+    // Check left
+    if(col - 3 >= 0) {
+        if(board[row][col-1] == turn && board[row][col-2] == turn && board[row][col-3] == turn) {
+            return 1;
+        }
+        if(row - 3 >= 0 && board[row-1][col-1] == turn && board[row-2][col-2] == turn && board[row-3][col-3] == turn) {
+            return 1;
+        }
+        if(row + 3 <= y-1 && board[row+1][col-1] == turn && board[row+2][col-2] == turn && board[row+3][col-3] == turn) {
+            return 1;
+        }
+    }
+    // Check down
+    if(row + 3 <= y-1 && board[row+1][col] == turn && board[row+2][col] == turn && board[row+3][col] == turn) {
+        return 1;
+    }
+    return 0;
+}
+
 int main() {
     initialize_board();
     int turn = 1, selection = 0, result = 0;
@@ -102,6 +134,11 @@ int main() {
         else {
             selection = get_user_selection(2);
             place_move(selection, 2);
+        }
+        if(check(turn, board[0][selection-1]+1, selection - 1)) {
+            draw_board();
+            result = turn;
+            break;
         }
         if(turn == 1)
             turn = 2;
