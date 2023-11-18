@@ -118,6 +118,21 @@ bool check(int turn, int row, int col) {
     return 0;
 }
 
+void game_end(int result) {
+    cout << "\nGame Over!";
+    switch(result){
+        case 1:
+            cout << "\nPlayer 1 wins!\n";
+            break;
+        case 2:
+            cout << "\nPlayer 2 wins!\n";
+            break;
+        default:
+            cout << "\nIt's a draw!\n";
+            break;
+    }
+}
+
 int main() {
     initialize_board();
     int turn = 1, selection = 0, result = 0;
@@ -145,4 +160,5 @@ int main() {
         else
             turn = 1;
     }
+    game_end(result);
 }
