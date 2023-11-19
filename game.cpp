@@ -1,5 +1,6 @@
 #include <iostream>
 #include <limits>
+#include <vector>
 
 using namespace std;
 
@@ -8,6 +9,7 @@ static const int x = 7; // #columns
 static int board[y][x];
 static int reference[x];
 static int available = y;
+static vector<int> moves;
 
 void initialize_board() {
     for (int i = 0; i < x; i++) {
@@ -133,6 +135,13 @@ void game_end(int result) {
     }
 }
 
+void move_history() {
+    for(int i : moves) {
+        cout << i;
+    }
+    cout << "\n";
+}
+
 int main() {
     initialize_board();
     int turn = 1, selection = 0, result = 0;
@@ -150,6 +159,7 @@ int main() {
             selection = get_user_selection(2);
             place_move(selection, 2);
         }
+        moves.push_back(selection);
         if(check(turn, board[0][selection-1]+1, selection - 1)) {
             draw_board();
             result = turn;
