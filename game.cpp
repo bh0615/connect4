@@ -2,67 +2,65 @@
 #include <limits>
 #include <vector>
 
-using namespace std;
-
-static const int y = 7; // #rows
-static const int x = 7; // #columns
-static int board[y][x];
-static int reference[x];
-static int available = y;
-static vector<int> moves;
+static const int HEIGHT = 7; // #rows
+static const int WIDTH = 7; // #columns
+static int board[HEIGHT][WIDTH];
+static int reference[WIDTH];
+static int available = HEIGHT;
+static std::vector<int> moves;
 
 void initialize_board() {
-    for (int i = 0; i < x; i++) {
+    for (int i = 0; i < WIDTH; i++) {
         reference[i] = i;
     }
-    for (int i = 1; i < y; i++) {
-        for (int j = 0; j < x; j++) {
+    for (int i = 1; i < HEIGHT; i++) {
+        for (int j = 0; j < WIDTH; j++) {
             board[i][j] = 0;
         }
     }
-    for (int j = 0; j < x; j++) {
-        board[0][j] = y - 1;
+    for (int j = 0; j < WIDTH; j++) {
+        board[0][j] = HEIGHT - 1;
     }
 }
 
 void draw_board() {
-    cout << "\033[2J\033[1;1H"; // Clears terminal on Linux & Windows
-    for (int i = 0; i < x; i++) {
-        cout << reference[i] + 1 << " "; // Prints column numbers above top row
+    std::cout << "\033[2J\033[1;1H"; // Clears terminal on Linux & Windows
+    for (int i = 0; i < WIDTH; i++) {
+        std::cout << reference[i] + 1 << " "; // Prints column numbers above top row
     }
-    cout << "\n";
-    for (int i = 1; i < y; i++) {
-        if(x > 9) {
+    std::cout << "\n";
+    for (int i = 1; i < HEIGHT; i++) {
+        if(WIDTH > 9) {
             for (int j = 0; j < 9; j++) {
-                cout << board[i][j] << " ";
+                std::cout << board[i][j] << " ";
             }
-            for (int j = 9; j < x; j++) {
-                cout << board[i][j] << "  ";
+            for (int j = 9; j < WIDTH; j++) {
+                std::cout << board[i][j] << "  ";
             }
-            cout << endl;
+            std::cout << std::endl;
         }
         else {
-            for (int j = 0; j < x; j++) {
-                cout << board[i][j] << " ";
+            for (int j = 0; j < WIDTH; j++) {
+                std::cout << board[i][j] << " ";
             }
-            cout << endl;
+            std::cout << std::endl;
         }
     }
 }
 
 int get_user_selection(int user) {
     int selection;
-    cout << "\nPlayer " << user << "'s turn!\nPlease enter the column number you wish to play: ";
-    if(!(cin >> selection)) { // Checks if input is int
+    std::cout << "\nPlayer " << user << "'s turn!\nPlease enter the column number you wish to play: ";
+    if(!(std::cin >> selection)) { // Checks if input is int
         draw_board();
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        cout << "\nPlease enter a valid number!\n";
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << "\nPlease enter a valid number!\n";
         selection = get_user_selection(user);
     }
-    if(selection > x || selection < 1) { // Checks if input is valid column
+    if(selection > WIDTH || selection < 1) { // Checks if input is valid column
         draw_board();
-        cout << "\nPlease enter a valid number!\n";
+        std::cout << "\nPlease enter a valid number!\n";
         selection = get_user_selection(user);
     }
     return selection;
@@ -83,21 +81,21 @@ void place_move(int selection, int user) {
     }
     else {
         draw_board();
-        cout << "\nColumn is full! Please select a different column!" << endl;
+        std::cout << "\nColumn is full! Please select a different column!" << std::endl;
         place_move(get_user_selection(user), user);
     }
 }
 
 bool check(int turn, int row, int col) {
     // Check right
-    if(col + 3 < x) {
+    if(col + 3 < WIDTH) {
         if(board[row][col+1] == turn && board[row][col+2] == turn && board[row][col+3] == turn) {
             return 1;
         }
         if(row - 3 >= 0 && board[row-1][col+1] == turn && board[row-2][col+2] == turn && board[row-3][col+3] == turn) {
             return 1;
         }
-        if(row + 3 <= y-1 && board[row+1][col+1] == turn && board[row+2][col+2] == turn && board[row+3][col+3] == turn) {
+        if(row + 3 <= HEIGHT-1 && board[row+1][col+1] == turn && board[row+2][col+2] == turn && board[row+3][col+3] == turn) {
             return 1;
         }
     }
@@ -109,37 +107,37 @@ bool check(int turn, int row, int col) {
         if(row - 3 >= 0 && board[row-1][col-1] == turn && board[row-2][col-2] == turn && board[row-3][col-3] == turn) {
             return 1;
         }
-        if(row + 3 <= y-1 && board[row+1][col-1] == turn && board[row+2][col-2] == turn && board[row+3][col-3] == turn) {
+        if(row + 3 <= HEIGHT-1 && board[row+1][col-1] == turn && board[row+2][col-2] == turn && board[row+3][col-3] == turn) {
             return 1;
         }
     }
     // Check down
-    if(row + 3 <= y-1 && board[row+1][col] == turn && board[row+2][col] == turn && board[row+3][col] == turn) {
+    if(row + 3 <= HEIGHT-1 && board[row+1][col] == turn && board[row+2][col] == turn && board[row+3][col] == turn) {
         return 1;
     }
     return 0;
 }
 
 void game_end(int result) {
-    cout << "\nGame Over!";
+    std::cout << "\nGame Over!";
     switch(result){
         case 1:
-            cout << "\nPlayer 1 wins!\n";
+            std::cout << "\nPlayer 1 wins!\n";
             break;
         case 2:
-            cout << "\nPlayer 2 wins!\n";
+            std::cout << "\nPlayer 2 wins!\n";
             break;
         default:
-            cout << "\nIt's a draw!\n";
+            std::cout << "\nIt's a draw!\n";
             break;
     }
 }
 
 void move_history() {
     for(int i : moves) {
-        cout << i;
+        std::cout << i;
     }
-    cout << "\n";
+    std::cout << "\n";
 }
 
 int main() {
