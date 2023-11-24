@@ -8,8 +8,8 @@ static int board[HEIGHT][WIDTH];
 static int reference[WIDTH];
 static int available = HEIGHT;
 static int count;
-static std::vector<int> moves;
-static unsigned int num_moves;
+static std::vector<int> moves_history;
+static unsigned int moves;
 
 void initialize_board() {
     for (int i = 0; i < WIDTH; i++) {
@@ -26,7 +26,7 @@ void initialize_board() {
 }
 
 void draw_board() {
-    std::cout << "\033[2J\033[1;1H"; // Clears terminal on Linux & Windows
+    // std::cout << "\033[2J\033[1;1H"; // Clears terminal on Linux & Windows
     for (int i = 0; i < WIDTH; i++) {
         std::cout << reference[i] + 1 << " "; // Prints column numbers above top row
     }
@@ -90,6 +90,8 @@ void place_move(int selection, int user) {
         std::cout << "\nColumn is full! Please select a different column!" << std::endl;
         place_move(get_user_selection(user), user);
     }
+    moves_history.push_back(selection+1);
+    moves++;
 }
 
 int check_right(int turn, int row, int col) {
@@ -162,11 +164,11 @@ int game_end(int result) {
     return choice;
 }
 
-void move_history() {
-    for(int i : moves) {
+void print_move_history() {
+    for(int i : moves_history) {
         std::cout << i;
     }
-    std::cout << "\n";
+    std::cout << "\n\n";
 }
 
 int main() {
@@ -187,8 +189,9 @@ int main() {
                 selection = get_user_selection(2);
                 place_move(selection, 2);
             }
-            moves.push_back(selection);
-            num_moves++;
+            std::cout << "\n# of moves: " << moves;
+            std::cout << "\nMove history: ";
+            print_move_history();
             if(check(turn, board[0][selection-1]+1, selection - 1)) {
                 draw_board();
                 result = turn;
