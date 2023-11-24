@@ -143,7 +143,7 @@ bool check(int turn, int row, int col) {
     return 0;
 }
 
-void game_end(int result) {
+int game_end(int result) {
     std::cout << "\nGame Over!";
     switch(result){
         case 1:
@@ -156,6 +156,10 @@ void game_end(int result) {
             std::cout << "\nIt's a draw!\n";
             break;
     }
+    std::cout << "\nWould you like to play again?\n1 - YES\n2 - NO\n\nEnter option: ";
+    int choice;
+    std::cin >> choice;
+    return choice;
 }
 
 void move_history() {
@@ -166,33 +170,36 @@ void move_history() {
 }
 
 int main() {
-    initialize_board();
-    int turn = 1, selection = 0, result = 0;
     while(true) {
-        draw_board();
-        if(available == 0) {
-            result = 0;
-            break;
-        }
-        if(turn == 1) {
-            selection = get_user_selection(1);
-            place_move(selection, 1);
-        }
-        else {
-            selection = get_user_selection(2);
-            place_move(selection, 2);
-        }
-        moves.push_back(selection);
-        num_moves++;
-        if(check(turn, board[0][selection-1]+1, selection - 1)) {
+        initialize_board();
+        int turn = 1, selection = 0, result = 0;
+        while(true) {
             draw_board();
-            result = turn;
-            break;
+            if(available == 0) {
+                result = 0;
+                break;
+            }
+            if(turn == 1) {
+                selection = get_user_selection(1);
+                place_move(selection, 1);
+            }
+            else {
+                selection = get_user_selection(2);
+                place_move(selection, 2);
+            }
+            moves.push_back(selection);
+            num_moves++;
+            if(check(turn, board[0][selection-1]+1, selection - 1)) {
+                draw_board();
+                result = turn;
+                break;
+            }
+            if(turn == 1)
+                turn = 2;
+            else
+                turn = 1;
         }
-        if(turn == 1)
-            turn = 2;
-        else
-            turn = 1;
+        int replay = game_end(result);
+        if(replay != 1) break;
     }
-    game_end(result);
 }
