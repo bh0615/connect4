@@ -7,7 +7,9 @@ static const int WIDTH = 7; // #columns
 static int board[HEIGHT][WIDTH];
 static int reference[WIDTH];
 static int available = HEIGHT;
+static int count;
 static std::vector<int> moves;
+static unsigned int num_moves;
 
 void initialize_board() {
     for (int i = 0; i < WIDTH; i++) {
@@ -66,9 +68,13 @@ int get_user_selection(int user) {
     return selection;
 }
 
+bool can_play(int col) {
+    return board[0][col] != -1;
+}
+
 void place_move(int selection, int user) {
     selection--; // Corrects for zero-based index
-    if(board[0][selection] != -1) {
+    if(can_play(selection)) {
         if(board[0][selection] > 1) {
             board[board[0][selection]][selection] = user;
             board[0][selection]--;
@@ -86,32 +92,51 @@ void place_move(int selection, int user) {
     }
 }
 
+int check_right(int turn, int row, int col) {
+    if(board[row][col] != turn) return count;
+    else count++; return check_right(turn, row, col+1);
+}
+int check_left(int turn, int row, int col) {
+    if(board[row][col] != turn) return count;
+    else count++; return check_left(turn, row, col-1);
+}
+int check_upper_right(int turn, int row, int col) {
+    if(board[row][col] != turn) return count;
+    else count++; return check_upper_right(turn, row-1, col+1);
+}
+int check_lower_left(int turn, int row, int col) {
+    if(board[row][col] != turn) return count;
+    else count++; return check_lower_left(turn, row+1, col-1);
+}
+int check_upper_left(int turn, int row, int col) {
+    if(board[row][col] != turn) return count;
+    else count++; return check_upper_left(turn, row-1, col-1);
+}
+int check_lower_right(int turn, int row, int col) {
+    if(board[row][col] != turn) return count;
+    else count++; return check_lower_right(turn, row+1, col+1);
+}
+
 bool check(int turn, int row, int col) {
-    // Check right
-    if(col + 3 < WIDTH) {
-        if(board[row][col+1] == turn && board[row][col+2] == turn && board[row][col+3] == turn) {
-            return 1;
-        }
-        if(row - 3 >= 0 && board[row-1][col+1] == turn && board[row-2][col+2] == turn && board[row-3][col+3] == turn) {
-            return 1;
-        }
-        if(row + 3 <= HEIGHT-1 && board[row+1][col+1] == turn && board[row+2][col+2] == turn && board[row+3][col+3] == turn) {
-            return 1;
-        }
-    }
-    // Check left
-    if(col - 3 >= 0) {
-        if(board[row][col-1] == turn && board[row][col-2] == turn && board[row][col-3] == turn) {
-            return 1;
-        }
-        if(row - 3 >= 0 && board[row-1][col-1] == turn && board[row-2][col-2] == turn && board[row-3][col-3] == turn) {
-            return 1;
-        }
-        if(row + 3 <= HEIGHT-1 && board[row+1][col-1] == turn && board[row+2][col-2] == turn && board[row+3][col-3] == turn) {
-            return 1;
-        }
-    }
-    // Check down
+    // Check horizontal
+    count = 0;
+    count = check_right(turn, row, col+1);
+    count = check_left(turn, row, col-1);
+    if(count == 3) return 1;
+
+    // Check upper-right and lower-left diagonal
+    count = 0;
+    count = check_upper_right(turn, row-1, col+1);
+    count = check_lower_left(turn, row+1, col-1);
+    if(count == 3) return 1;
+
+    // Check upper-left and lower-right diagonal
+    count = 0;
+    count = check_upper_left(turn, row-1, col-1);
+    count = check_lower_right(turn, row+1, col+1);
+    if(count == 3) return 1;
+
+    // Check vertical
     if(row + 3 <= HEIGHT-1 && board[row+1][col] == turn && board[row+2][col] == turn && board[row+3][col] == turn) {
         return 1;
     }
@@ -158,6 +183,7 @@ int main() {
             place_move(selection, 2);
         }
         moves.push_back(selection);
+        num_moves++;
         if(check(turn, board[0][selection-1]+1, selection - 1)) {
             draw_board();
             result = turn;
