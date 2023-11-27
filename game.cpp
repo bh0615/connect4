@@ -1,9 +1,10 @@
 #include <iostream>
 #include <limits>
 #include <vector>
+#include <ctime>
 
-static const int HEIGHT = 7; // #rows
-static const int WIDTH = 7; // #columns
+static const int HEIGHT = 5; // #rows
+static const int WIDTH = 4; // #columns
 static int board[HEIGHT][WIDTH];
 static int reference[WIDTH];
 static int available = HEIGHT;
@@ -145,6 +146,14 @@ bool check(int turn, int row, int col) {
     return 0;
 }
 
+std::vector<int> get_valid_columns() {
+    std::vector<int> valid_columns;
+    for(int i = 0; i < WIDTH; i++) {
+        if(can_play(i)) valid_columns.push_back(i);
+    }
+    return valid_columns;
+}
+
 int game_end(int result) {
     std::cout << "\nGame Over!";
     switch(result){
@@ -164,6 +173,17 @@ int game_end(int result) {
     return choice;
 }
 
+// int minimax(int col, int depth, int alpha, int beta, bool max_player) {
+//     if(depth == 0) {
+
+//     }
+    
+//     // std::srand(std::time(0)); // Use current time as seed for random generator
+//     // int random_pos = (std::rand()+1) % valid_columns.size();  // Modulo to restrict the number of random values to be at most size()-1
+//     // int column = valid_columns[random_pos];
+//     return column;
+// }
+
 void print_move_history() {
     for(int i : moves_history) {
         std::cout << i;
@@ -174,6 +194,7 @@ void print_move_history() {
 int main() {
     while(true) {
         initialize_board();
+        int best_score = WIDTH * (HEIGHT-1);
         int turn = 1, selection = 0, result = 0;
         while(true) {
             draw_board();
@@ -184,14 +205,18 @@ int main() {
             if(turn == 1) {
                 selection = get_user_selection(1);
                 place_move(selection, 1);
+                best_score--;
             }
-            else {
+            if(turn == 2) {
                 selection = get_user_selection(2);
+                // selection = minimax(board, 5, -best_score, best_score, true);
                 place_move(selection, 2);
+                best_score--;
             }
             std::cout << "\n# of moves: " << moves;
             std::cout << "\nMove history: ";
             print_move_history();
+            std::cout << "\nBest score: " << best_score << "\n";
             if(check(turn, board[0][selection-1]+1, selection - 1)) {
                 draw_board();
                 result = turn;
