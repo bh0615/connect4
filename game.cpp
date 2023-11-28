@@ -8,16 +8,16 @@ static const int HEIGHT = 7; // #rows
 static const int WIDTH = 7; // #columns
 static int board[HEIGHT][WIDTH];
 static int reference[WIDTH];
-static int available = HEIGHT;
-static int count;
-static std::vector<int> moves_history;
-static unsigned int moves;
+static int available = HEIGHT; // #spaces available for each column
+static int count; // Used for checking for 4 in a row
+static std::vector<int> moves_history; // Keeps track of each played column in order
+static unsigned int moves; // Keeps track of total number of moves
 
 void initialize_board() {
-    for (int i = 0; i < WIDTH; i++) {
+    for (int i = 0; i < WIDTH; i++) { // Numbers each column above the board
         reference[i] = i;
     }
-    for (int i = 1; i < HEIGHT; i++) {
+    for (int i = 1; i < HEIGHT; i++) { // Row 0 is used to keep track of available spaces
         for (int j = 0; j < WIDTH; j++) {
             board[i][j] = 0;
         }
@@ -28,7 +28,7 @@ void initialize_board() {
 }
 
 void draw_board() {
-    std::cout << "\033[2J\033[1;1H"; // Clears terminal on Linux & Windows
+    std::cout << "\033[2J\033[1;1H"; // Clears terminal on Linux & Windows. Useful to comment out for debugging
     for (int i = 0; i < WIDTH; i++) {
         std::cout << reference[i] + 1 << " "; // Prints column numbers above top row
     }
@@ -71,14 +71,14 @@ int get_user_selection(int user) {
 }
 
 bool can_play(int col) {
-    return board[0][col] != -1;
+    return board[0][col] != -1; // Row 0 contains available spaces. If = -1, no available spaces
 }
 
 void place_move(int selection, int user) {
     selection--; // Corrects for zero-based index
     if(can_play(selection)) {
         if(board[0][selection] > 1) {
-            board[board[0][selection]][selection] = user;
+            board[board[0][selection]][selection] = user; // Places player token in appropriate spot
             board[0][selection]--;
         }
         else {
@@ -96,6 +96,7 @@ void place_move(int selection, int user) {
     moves++;
 }
 
+// All check_* functions work with count in determining if there are 4 in a row
 int check_right(int turn, int row, int col) {
     if(board[row][col] != turn) return count;
     else count++; return check_right(turn, row, col+1);
@@ -147,6 +148,7 @@ bool check(int turn, int row, int col) {
     return 0;
 }
 
+// Returns a vector list of all available columns
 std::vector<int> get_valid_columns() {
     std::vector<int> valid_columns;
     for(int i = 0; i < WIDTH; i++) {
@@ -155,6 +157,7 @@ std::vector<int> get_valid_columns() {
     return valid_columns;
 }
 
+// If end game condition is met, returns the proper result, and asks if user wants to play again
 int game_end(int result) {
     std::cout << "\nGame Over!";
     switch(result){
@@ -174,6 +177,7 @@ int game_end(int result) {
     return choice;
 }
 
+// Not minimax algorithm at the moment. Just picks a random column
 int minimax(std::vector<int> valid_columns, int depth, int alpha, int beta, bool max_player) {
     std::srand(std::time(0)); // Use current time as seed for random generator
     int random_pos = std::rand() % valid_columns.size();  // Modulo to restrict the number of random values
@@ -185,6 +189,7 @@ int minimax(std::vector<int> valid_columns, int depth, int alpha, int beta, bool
     return column;
 }
 
+// Sequentially prints all moves made
 void print_move_history() {
     for(int i : moves_history) {
         std::cout << i;
@@ -193,20 +198,20 @@ void print_move_history() {
 }
 
 int main() {
-    while(true) {
+    while(true) { // Main program loop
         initialize_board();
         int best_score = WIDTH * (HEIGHT-1);
         int turn = 1, selection = 0, result = 0;
-        while(true) {
+        while(true) { // Individual game loop
             draw_board();
-            if(available == 0) {
+            if(available == 0) { // If no available, game = draw
                 result = 0;
                 break;
             }
             if(turn == 1) {
                 selection = get_user_selection(1);
                 place_move(selection, 1);
-                best_score--;
+                best_score--; // Best score (initialized above) = # possible moves - moves made
             }
             if(turn == 2) {
                 std::cout << "\nAI's turn...\n";
@@ -220,12 +225,12 @@ int main() {
             // std::cout << "\nMove history: ";
             // print_move_history();
             // std::cout << "\nBest score: " << best_score << "\n";
-            if(check(turn, board[0][selection-1]+1, selection - 1)) {
+            if(check(turn, board[0][selection-1]+1, selection - 1)) { // Checks last played position if winning move
                 draw_board();
                 result = turn;
                 break;
             }
-            if(turn == 1)
+            if(turn == 1) // Switch player turns
                 turn = 2;
             else
                 turn = 1;
